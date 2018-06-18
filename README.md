@@ -50,10 +50,10 @@ ENV MONGOURL=mongodb://[CosmosDBInstanceName]:[CosmosDBPrimaryPassword]=@[Cosmos
 ENV AMQPURL=amqp://[url]:5672
 ```
 
-### For Event Hubs
+### For Service Bus 
 
 ```
-ENV AMQPURL=amqps://[policy name]:[policy key]@[youreventhub].servicebus.windows.net/[eventhubname]
+ENV AMQPURL=amqps://[policy name]:[policy key]@[yourServiceBus].servicebus.windows.net//[queuename]
 ```
 
 Make sure your _policy key_ is URL Encoded. Use a tool like: <https://www.url-encode-decode.com/>
