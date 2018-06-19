@@ -29,7 +29,7 @@ COPY --from=builder /go/src/captureorderfd .
 # Define environment variables
 # Application Insights
 ENV APPINSIGHTS_KEY=
-ENV CHALLENGEAPPINSIGHTS_KEY=23c6b1ec-ca92-4083-86b6-eba851af9032
+ENV CHALLENGEAPPINSIGHTS_KEY=
 
 # Challenge Logging
 ENV TEAMNAME=
