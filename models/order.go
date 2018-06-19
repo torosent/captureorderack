@@ -285,6 +285,9 @@ func initMongoDial() (success bool, mErr error) {
 	mongoDBSession, mongoDBSessionError = mgo.DialWithInfo(dialInfo)
 	if mongoDBSessionError != nil {
 		log.Println(fmt.Sprintf("Can't connect to mongo at [%s], go error: ", mongoURL), mongoDBSessionError)
+		if customTelemetryClient != nil {
+			customTelemetryClient.TrackException(mongoDBSessionError)
+		}
 		mErr = mongoDBSessionError
 	} else {
 		success = true
