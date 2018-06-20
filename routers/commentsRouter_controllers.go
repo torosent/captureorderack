@@ -14,4 +14,12 @@ func init() {
 			AllowHTTPMethods: []string{"post"},
 			MethodParams:     param.Make(),
 			Params:           nil})
+	beego.GlobalControllerRouter["captureorderfd/controllers:HealthController"] = append(beego.GlobalControllerRouter["captureorderfd/controllers:HealthController"],
+		beego.ControllerComments{
+			Method:           "Get",
+			Router:           `/`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams:     param.Make(),
+			Params:           nil})
+
 }

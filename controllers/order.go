@@ -23,7 +23,6 @@ func (this *OrderController) Post() {
 	var ob models.Order
 	json.Unmarshal(this.Ctx.Input.RequestBody, &ob)
 
-
 	// Add the order to MongoDB
 	addedOrder, err := models.AddOrderToMongoDB(ob)
 
@@ -37,6 +36,6 @@ func (this *OrderController) Post() {
 		this.Data["json"] = map[string]string{"error": "order not added to MongoDB. Check logs: " + err.Error()}
 		this.Ctx.Output.SetStatus(500)
 	}
-	
+
 	this.ServeJSON()
 }

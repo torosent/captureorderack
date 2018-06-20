@@ -20,6 +20,11 @@ func init() {
 				&controllers.OrderController{},
 			),
 		),
+		beego.NSNamespace("/healthz",
+			beego.NSInclude(
+				&controllers.HealthController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
