@@ -118,10 +118,11 @@ func AddOrderToMongoDB(order Order) (Order, error) {
 
 	if success {
 		// Track the event for the challenge purposes
-		eventTelemetry := appinsights.NewEventTelemetry("CapureOrder: - Team Name " + teamName + " db " + db)
+		eventTelemetry := appinsights.NewEventTelemetry("CaptureOrder: - Team Name " + teamName + " db " + db)
 		eventTelemetry.Properties["team"] = teamName
 		eventTelemetry.Properties["challenge"] = "1-captureorder"
 		eventTelemetry.Properties["type"] = db
+		eventTelemetry.Properties["service"] = "CaptureOrder"
 		challengeTelemetryClient.Track(eventTelemetry)
 	}
 
@@ -551,6 +552,7 @@ func addOrderToAMQP091(order Order) {
 			eventTelemetry.Properties["team"] = teamName
 			eventTelemetry.Properties["challenge"] = "2-sendmessage"
 			eventTelemetry.Properties["type"] = "rabbitmq"
+			eventTelemetry.Properties["service"] = "CaptureOrder"
 			challengeTelemetryClient.Track(eventTelemetry)
 		}
 
@@ -633,6 +635,7 @@ func addOrderToAMQP10(order Order) {
 			eventTelemetry.Properties["team"] = teamName
 			eventTelemetry.Properties["challenge"] = "2-sendmessage"
 			eventTelemetry.Properties["type"] = "servicebus"
+			eventTelemetry.Properties["service"] = "CaptureOrder"
 			challengeTelemetryClient.Track(eventTelemetry)
 		}
 
