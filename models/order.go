@@ -123,6 +123,7 @@ func AddOrderToMongoDB(order Order) (Order, error) {
 		eventTelemetry.Properties["challenge"] = "1-captureorder"
 		eventTelemetry.Properties["type"] = db
 		eventTelemetry.Properties["service"] = "CaptureOrder"
+		eventTelemetry.Properties["orderId"] = order.OrderID
 		challengeTelemetryClient.Track(eventTelemetry)
 	}
 
@@ -373,6 +374,7 @@ func initMongo() {
 		}, &result)
 
 	if err != nil {
+		trackException(err)
 		// The collection is most likely created and already sharded. I couldn't find a more elegant way to check this.
 		log.Println("Could not create/re-create sharded MongoDB collection. Either collection is already sharded or sharding is not supported. You can ignore this error: ", err)
 	} else {
@@ -386,9 +388,7 @@ func initAMQP() {
 	url, err := url.Parse(amqpURL)
 	if err != nil {
 		// If the team provided an Application Insights key, let's track that exception
-		if customTelemetryClient != nil {
-			customTelemetryClient.TrackException(err)
-		}
+		trackException(err)
 		log.Fatal(fmt.Sprintf("Problem parsing AMQP Host %s. Make sure you URL Encoded your policy/password.", url), err)
 	}
 
@@ -468,9 +468,7 @@ func initAMQP10() {
 		amqp10Client, err = amqp10.Dial(amqpURL)
 		if err != nil {
 			// If the team provided an Application Insights key, let's track that exception
-			if customTelemetryClient != nil {
-				customTelemetryClient.TrackException(err)
-			}
+			trackException(err)
 		}
 		//defer amqp10Client.Close()
 
@@ -481,9 +479,7 @@ func initAMQP10() {
 			amqp10Session, err = amqp10Client.NewSession()
 			if err != nil {
 				// If the team provided an Application Insights key, let's track that exception
-				if customTelemetryClient != nil {
-					customTelemetryClient.TrackException(err)
-				}
+				trackException(err)
 				log.Fatal("\t\tCreating AMQP session: ", err)
 			}
 		}
@@ -536,9 +532,7 @@ func addOrderToAMQP091(order Order) {
 			})
 		if err != nil {
 			// If the team provided an Application Insights key, let's track that exception
-			if customTelemetryClient != nil {
-				customTelemetryClient.TrackException(err)
-			}
+			trackException(err)
 			log.Println("Sending message:", err)
 		} else {
 			success = true
@@ -553,7 +547,11 @@ func addOrderToAMQP091(order Order) {
 			eventTelemetry.Properties["challenge"] = "2-sendmessage"
 			eventTelemetry.Properties["type"] = "rabbitmq"
 			eventTelemetry.Properties["service"] = "CaptureOrder"
+			eventTelemetry.Properties["orderId"] = order.OrderID
 			challengeTelemetryClient.Track(eventTelemetry)
+			if customTelemetryClient != nil {
+				customTelemetryClient.Track(eventTelemetry)
+			}
 		}
 
 		// Track the dependency, if the team provided an Application Insights key, let's track that dependency
@@ -603,13 +601,10 @@ func addOrderToAMQP10(order Order) {
 			log.Println("Attempting to send the AMQP message: ", body)
 			err = amqpSender.Send(amqp10Context, amqp10.NewMessage([]byte(body)))
 			if err != nil {
+				trackException(err)
 				switch t := err.(type) {
 				default:
 					log.Println("Encountered an error sending AMQP. Will not retry: ", err)
-					// If the team provided an Application Insights key, let's track that exception
-					if customTelemetryClient != nil {
-						customTelemetryClient.TrackException(err)
-					}
 					// This is an unhandled error, don't retry
 					return false, err
 				case *amqp10.DetachError:
@@ -636,6 +631,7 @@ func addOrderToAMQP10(order Order) {
 			eventTelemetry.Properties["challenge"] = "2-sendmessage"
 			eventTelemetry.Properties["type"] = "servicebus"
 			eventTelemetry.Properties["service"] = "CaptureOrder"
+			eventTelemetry.Properties["orderId"] = order.OrderID
 			challengeTelemetryClient.Track(eventTelemetry)
 		}
 
@@ -657,6 +653,16 @@ func addOrderToAMQP10(order Order) {
 		}
 
 		log.Printf("Sent to AMQP 1.0 (ServiceBus) - %t, %s: %s", success, amqpURL, body)
+	}
+}
+
+func trackException(err error) {
+	if err != nil {
+		log.Println(err)
+		challengeTelemetryClient.TrackException(err)
+		if customTelemetryClient != nil {
+			customTelemetryClient.TrackException(err)
+		}
 	}
 }
 
