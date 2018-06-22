@@ -602,15 +602,7 @@ func addOrderToAMQP10(order Order) {
 			err = amqpSender.Send(amqp10Context, amqp10.NewMessage([]byte(body)))
 			if err != nil {
 				trackException(err)
-				switch t := err.(type) {
-				default:
-					log.Println("Encountered an error sending AMQP. Will not retry: ", err)
-					// This is an unhandled error, don't retry
-					return false, err
-				case *amqp10.DetachError:
-					log.Println("Serivce Bus detached. Will reconnect and retry: ", t, err)
-					initAMQP10()
-				}
+				initAMQP10()
 			}
 			return attempt < 3, err
 		})
