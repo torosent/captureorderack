@@ -118,9 +118,9 @@ func AddOrderToMongoDB(order Order) (Order, error) {
 
 	if success {
 		// Track the event for the challenge purposes
-		eventTelemetry := appinsights.NewEventTelemetry("CaptureOrder: - Team Name " + teamName + " db " + db)
+		eventTelemetry := appinsights.NewEventTelemetry("CaptureOrder to " + db)
 		eventTelemetry.Properties["team"] = teamName
-		eventTelemetry.Properties["challenge"] = "1-captureorder"
+		eventTelemetry.Properties["sequence"] = "1"
 		eventTelemetry.Properties["type"] = db
 		eventTelemetry.Properties["service"] = "CaptureOrder"
 		eventTelemetry.Properties["orderId"] = order.OrderID
@@ -542,9 +542,9 @@ func addOrderToAMQP091(order Order) {
 
 		if success {
 			// Track the event for the challenge purposes
-			eventTelemetry := appinsights.NewEventTelemetry("SendOrder: - Team Name " + teamName + " - RabbitMQ")
+			eventTelemetry := appinsights.NewEventTelemetry("SendOrder to RabbitMQ")
 			eventTelemetry.Properties["team"] = teamName
-			eventTelemetry.Properties["challenge"] = "2-sendmessage"
+			eventTelemetry.Properties["sequence"] = "2"
 			eventTelemetry.Properties["type"] = "rabbitmq"
 			eventTelemetry.Properties["service"] = "CaptureOrder"
 			eventTelemetry.Properties["orderId"] = order.OrderID
@@ -618,9 +618,9 @@ func addOrderToAMQP10(order Order) {
 
 		if success {
 			// Track the event for the challenge purposes
-			eventTelemetry := appinsights.NewEventTelemetry("SendOrder: - Team Name " + teamName + " - SerivceBus")
+			eventTelemetry := appinsights.NewEventTelemetry("SendOrder to SerivceBus")
 			eventTelemetry.Properties["team"] = teamName
-			eventTelemetry.Properties["challenge"] = "2-sendmessage"
+			eventTelemetry.Properties["sequence"] = "2"
 			eventTelemetry.Properties["type"] = "servicebus"
 			eventTelemetry.Properties["service"] = "CaptureOrder"
 			eventTelemetry.Properties["orderId"] = order.OrderID
