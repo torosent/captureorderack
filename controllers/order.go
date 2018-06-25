@@ -23,7 +23,7 @@ func (this *OrderController) Post() {
 	var ob models.Order
 	json.Unmarshal(this.Ctx.Input.RequestBody, &ob)
 
-	model.TrackInitialOrder(ob)
+	models.TrackInitialOrder(ob)
 	// Add the order to MongoDB
 	addedOrder, err := models.AddOrderToMongoDB(ob)
 
