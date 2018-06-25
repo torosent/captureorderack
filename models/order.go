@@ -72,6 +72,19 @@ var isServiceBus = strings.Contains(amqpURL, "servicebus.windows.net")
 var db string        // CosmosDB or MongoDB?
 var queueType string // ServiceBus or RabbitMQ
 
+func TrackInitialOrder(order Order) {
+	eventTelemetry := appinsights.NewEventTelemetry("Initial order")
+	eventTelemetry.Properties["team"] = teamName
+	eventTelemetry.Properties["sequence"] = "0"
+	eventTelemetry.Properties["type"] = "http"
+	eventTelemetry.Properties["service"] = "CaptureOrder"
+	eventTelemetry.Properties["orderId"] = order.OrderID
+	challengeTelemetryClient.Track(eventTelemetry)
+	if customTelemetryClient != nil {
+		customTelemetryClient.Track(eventTelemetry)
+	}
+}
+
 // AddOrderToMongoDB Adds the order to MongoDB/CosmosDB
 func AddOrderToMongoDB(order Order) (Order, error) {
 	success := false
